@@ -9,7 +9,8 @@ pitcher_id = 605400  # 예시: Shohei Ohtani
 
 # 📊 데이터 불러오기
 df = statcast_pitcher(date, date, pitcher_id)
-batter_ID = pd.read_excel('/Users/kyengwook/Documents/Baseball/PB/Batter_ID2023.xlsx')
+batter_ID = pd.read_excel('Batter_ID2023.xlsx')
+
 
 df['release_speed'] = df['release_speed'] * 1.60934
 df['release_speed'] = round(df['release_speed'], 1)
