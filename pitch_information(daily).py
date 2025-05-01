@@ -218,14 +218,16 @@ for pitch_name, style in pitch_styles.items():
         continue
     pitch_data = pitch_data.copy()
     pitch_data['custom_hover'] = pitch_data.apply(
-        lambda row: (
-            f"{row['pitch_name']}<br>"
-            f"{row['release_speed']} km/h<br>"
-            f"{row['description']}<br>"
-            f"{row['events']}" if row['description'] == 'hit_into_play' else
-            f"{row['release_speed']} km/h<br>{row['description']}"
-        ), axis=1
-    )
+    lambda row: (
+        f"{row['pitch_name']}<br>"
+        f"{row['release_speed']} km/h<br>"
+        f"{row['description']}<br>"
+        f"{row['events']}" if row['description'] == 'hit_into_play' else
+        f"{row['pitch_name']}<br>"
+        f"{row['release_speed']} km/h<br>{row['description']}"
+    ), axis=1
+)
+
 
     scatter_fig.add_trace(
         go.Scatter(
