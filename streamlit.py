@@ -34,14 +34,14 @@ if df.empty:
     st.error("❌ 데이터셋이 비어있습니다. Google Drive 파일 ID나 파일 내용을 확인하세요.")
     st.stop()
 
-st.title("⚾ MLB Pitching Visualization Dashboard")
+st.title("⚾ MLB 2025 - Daily Pitch Information")
 
 # ⚾️ 1️⃣ 팀 선택 (placeholder 포함)
 teams = sorted(set(df['home_team'].unique()).union(df['away_team'].unique()))
 team_options = ['— Select Team —'] + teams
 selected_team = st.selectbox('Select Team', team_options)
 
-if selected_team == '— Select Team —':
+if selected_team == 'Select Team':
     st.info('ℹ️ 팀을 먼저 선택해주세요.')
     st.stop()
 
@@ -63,7 +63,7 @@ player_options = team_df['player_name'].dropna().unique()
 player_options = ['— Select Pitcher —'] + sorted(player_options)
 selected_player = st.selectbox('Select Pitcher', player_options)
 
-if selected_player == '— Select Pitcher —':
+if selected_player == 'Select Pitcher':
     st.info('ℹ️ 선수를 선택해주세요.')
     st.stop()
 
@@ -79,7 +79,7 @@ available_dates = sorted([d.date() for d in available_dates])
 date_options = ['— Select Date —'] + available_dates
 selected_date = st.selectbox('Select Date', date_options)
 
-if selected_date == '— Select Date —':
+if selected_date == 'Select Date':
     st.info('ℹ️ 날짜를 선택해주세요.')
     st.stop()
 
