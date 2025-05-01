@@ -109,7 +109,31 @@ statcast_df = pd.merge(statcast_df, batter_ID, on='batter', how='left')
 pitcher_name = statcast_df['player_name'].iloc[0]
 
 # 🎛️ Streamlit UI - Batter/Inning 선택
-st.header(f"{pitcher_name} - Pitch Visualization ({selected_date})")
+st.header(f"{pitcher_name} - Pitch Information ({selected_date})")
+
+# 📊 구종별 통계
+st.subheader("Pitch Type Summary")
+summary_df = filtered_df.groupby('pitch_name').agg({
+    'pitch_name': 'count',
+    'release_speed': ['min', 'mean', 'max'],
+    'release_spin_rate': ['mean'],
+    'release_pos_z': ['mean'],
+    'release_pos_x': ['mean'],
+    'release_extension': ['mean'],
+    'pfx_z': ['mean'],
+    'pfx_x': ['mean'],
+    'spin_axis': ['mean']
+}).rename(columns={'pitch_name': 'pitches'}).round(1)
+
+# 📏 pfx_x, pfx_z 단위 변환 (인치 -> 센티미터)
+summary_df['pfx_x'] = summary_df['pfx_x'] * 30.48 * -1
+summary_df['pfx_z'] = summary_df['pfx_z'] * 30.48
+
+# column 이름 정리
+summary_df.columns = ['_'.join(col).strip() for col in summary_df.columns.values]
+summary_df = summary_df.reset_index()
+
+st.dataframe(summary_df)
 
 batter_options = statcast_df['batter_name'].dropna().unique()
 selected_batter = st.selectbox('Select Batter', batter_options)
@@ -193,42 +217,23 @@ with col1:
     st.plotly_chart(scatter_fig)
 
 with col2:
-    # 📋 구종별 통계
-    st.subheader("Pitch Type Summary")
-    summary_df = filtered_df.groupby('pitch_name').agg({
-        'pitch_name': 'count',
-        'release_speed': ['min', 'mean', 'max'],
-        'release_spin_rate': ['mean'],
-        'release_pos_z': ['mean'],
-        'release_pos_x': ['mean'],
-        'release_extension': ['mean'],
-        'pfx_z': ['mean'],
-        'pfx_x': ['mean'],
-        'spin_axis': ['mean']
-    }).rename(columns={'pitch_name': 'pitches'}).round(1)
+    # 📋 테이블
+    st.subheader("Pitch Details")
 
-    # column 이름 정리
-    summary_df.columns = ['_'.join(col).strip() for col in summary_df.columns.values]
-    summary_df = summary_df.reset_index()
+    # 컬럼 이름 정리
+    filtered_df = filtered_df.rename(columns={
+        'pitch_number': 'Pitch Number',
+        'pitch_name': 'Pitch Type',
+        'outs_when_up': 'Outs When Up',
+        'balls': 'Balls',
+        'strikes': 'Strikes',
+        'release_speed': 'Release Speed (km/h)',
+        'release_spin_rate': 'Release Spin Rate (rpm)',
+        'type': 'Pitch Outcome',
+        'description': 'Pitch Description'
+    })
 
-    st.dataframe(summary_df)
+    st.dataframe(filtered_df[['Pitch Number', 'Pitch Type', 'Outs When Up', 'Balls', 'Strikes',
+                              'Release Speed (km/h)', 'Release Spin Rate (rpm)', 'Pitch Outcome', 'Pitch Description']])
 
-# 📋 테이블
-st.subheader("Pitch Details")
-
-# 컬럼 이름 정리
-filtered_df = filtered_df.rename(columns={
-    'pitch_number': 'Pitch Number',
-    'pitch_name': 'Pitch Type',
-    'outs_when_up': 'Outs When Up',
-    'balls': 'Balls',
-    'strikes': 'Strikes',
-    'release_speed': 'Release Speed (km/h)',
-    'release_spin_rate': 'Release Spin Rate (rpm)',
-    'type': 'Pitch Outcome',
-    'description': 'Pitch Description'
-})
-
-st.dataframe(filtered_df[['Pitch Number', 'Pitch Type', 'Outs When Up', 'Balls', 'Strikes',
-                          'Release Speed (km/h)', 'Release Spin Rate (rpm)', 'Pitch Outcome', 'Pitch Description']])
 
