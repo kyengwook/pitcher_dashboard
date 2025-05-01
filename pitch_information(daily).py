@@ -24,7 +24,7 @@ def load_data_from_drive():
 # 📋 Batter ID 파일 불러오기
 @st.cache_data
 def load_batter_id():
-    batter_ID = pd.read_excel('Batter_ID2023.xlsx')
+    batter_ID = pd.read_excel('Batter_ID(2025).xlsx')
     return batter_ID
 
 # 데이터 불러오기
