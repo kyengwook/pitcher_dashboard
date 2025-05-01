@@ -112,7 +112,7 @@ pitcher_name = statcast_df['player_name'].iloc[0]
 st.header(f"{pitcher_name} - Pitch Information ({selected_date})")
 
 # 📊 구종별 통계
-st.subheader("Pitch Summary")
+st.subheader("Pitch Summary(Game)")
 summary_df = filtered_df.groupby('pitch_name').agg({
     'pitch_name': 'count',
     'release_speed': ['min', 'mean', 'max'],
