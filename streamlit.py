@@ -236,8 +236,7 @@ scatter_fig.update_layout(
 # Plotly 시각화 출력
 st.plotly_chart(scatter_fig)
 
-# 두 요소 사이의 공백을 줄이기 위해 markdown 사용
-st.markdown("<br>", unsafe_allow_html=True)  # 여백을 최소화하기 위한 한 줄 추가
+
 
 # Pitch Details 테이블을 아래에 위치하도록 수정
 st.subheader("Pitch Details")
