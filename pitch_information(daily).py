@@ -251,7 +251,7 @@ scatter_fig.update_layout(
     xaxis=dict(title='', range=[L-2.5, R+2.5], showticklabels=False),
     yaxis=dict(title='', range=[Bot-3, Top+2], showticklabels=False),
     width=700,
-    height=600,
+    height=800,
     showlegend=True
 )
 
