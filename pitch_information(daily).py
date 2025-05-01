@@ -185,6 +185,10 @@ selected_inning = st.selectbox('Select Inning', inning_options)
 filtered_df = filtered_df[filtered_df['inning'] == selected_inning]
 filtered_df = filtered_df.sort_values(by='pitch_number')
 
+# 🔥 중복 제거 (pitch_number + inning + batter 기준)
+filtered_df = filtered_df.drop_duplicates(subset=['pitch_number', 'inning', 'batter'])
+
+
 
 # 📈 Plotly 시각화
 L, R = -0.708333, 0.708333
