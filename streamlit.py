@@ -235,7 +235,11 @@ filtered_df = filtered_df.rename(columns={
     'description': 'Pitch Description'
 })
 
+# 표 내용 가운데 정렬하기
+styled_df = filtered_df[['Pitch Number', 'Pitch Type', 'Outs When Up', 'Balls', 'Strikes',
+                         'Release Speed (km/h)', 'Release Spin Rate (rpm)', 'Pitch Outcome', 'Pitch Description']] \
+    .style.set_properties(**{'text-align': 'center'})
+
 # 테이블 출력
-st.dataframe(filtered_df[['Pitch Number', 'Pitch Type', 'Outs When Up', 'Balls', 'Strikes',
-                          'Release Speed (km/h)', 'Release Spin Rate (rpm)', 'Pitch Outcome', 'Pitch Description']])
+st.dataframe(styled_df)
 
