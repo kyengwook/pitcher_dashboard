@@ -125,12 +125,13 @@ summary_df = filtered_df.groupby('pitch_name').agg({
     'spin_axis': ['mean']
 }).rename(columns={'pitch_name': 'pitches'}).round(1)  # 소수점 첫째 자리까지 반올림
 
-# 📏 단위 변환 (인치 -> 센티미터)
-summary_df['pfx_x'] = summary_df['pfx_x'] * 30.48 * -1
-summary_df['pfx_z'] = summary_df['pfx_z'] * 30.48
-summary_df['release_pos_z'] = summary_df['release_pos_z'] * 30.48
-summary_df['release_pos_x'] = summary_df['release_pos_x'] * 30.48 * (-1)
-summary_df['release_extension'] = summary_df['release_extension'] * 30.48
+# 📏 단위 변환 (인치 -> 센티미터) 후 소수점 첫째 자리까지 반올림
+summary_df['pfx_x'] = (summary_df['pfx_x'] * 30.48 * -1).round(1)
+summary_df['pfx_z'] = (summary_df['pfx_z'] * 30.48).round(1)
+summary_df['release_pos_z'] = (summary_df['release_pos_z'] * 30.48).round(1)
+summary_df['release_pos_x'] = (summary_df['release_pos_x'] * 30.48 * (-1)).round(1)
+summary_df['release_extension'] = (summary_df['release_extension'] * 30.48).round(1)
+
 
 # column 이름 정리
 summary_df.columns = ['_'.join(col).strip() for col in summary_df.columns.values]
