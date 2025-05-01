@@ -35,6 +35,8 @@ if df.empty:
     st.stop()
 
 st.title("⚾ MLB 2025 - Daily Pitch Information")
+st.caption("🧑🏻‍💻 App developed by Kyengwook  |  📬 kyengwook8@naver.com  |  [GitHub](https://github.com/kyengwook/kyengwook)  |  [Instagram](https://instagram.com/kyengwook)")
+st.caption("📊 Data source: [Baseball Savant](https://baseballsavant.mlb.com/) – MLB 2025 regular season data.")
 
 # ⚾️ 1️⃣ 팀 선택 (placeholder 포함)
 teams = sorted(set(df['home_team'].unique()).union(df['away_team'].unique()))
