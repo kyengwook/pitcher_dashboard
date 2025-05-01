@@ -62,22 +62,18 @@ if filtered_player_df.empty:
     st.warning(f"⚠️ {selected_player}의 데이터가 없습니다.")
     st.stop()
 
-# 3. 날짜 선택 - 해당 선수가 참여한 날짜만 필터링
-start_date = filtered_player_df.index.min().date()
-end_date = filtered_player_df.index.max().date()
+# 3. 날짜 선택 - 해당 선수가 참여한 날짜만 선택
+available_dates = filtered_player_df.index.normalize().unique()  # 날짜만 고유하게 추출
+available_dates = sorted([d.date() for d in available_dates])   # datetime.date로 변환
 
-col1, col2 = st.columns(2)
-with col1:
-    start_date = st.date_input('Start Date', start_date, min_value=start_date, max_value=end_date)
-with col2:
-    end_date = st.date_input('End Date', end_date, min_value=start_date, max_value=end_date)
+selected_date = st.selectbox('Select Date', available_dates)
 
-# 날짜 필터링
-filtered_df = filtered_player_df.loc[start_date:end_date]
+# 선택된 날짜 데이터 필터링
+filtered_df = filtered_player_df[filtered_player_df.index.normalize() == pd.Timestamp(selected_date)]
 
-# 📢 날짜 범위 내 데이터가 없으면 경고 후 종료
+# 📢 선택한 날짜에 데이터 없으면 경고 후 종료
 if filtered_df.empty:
-    st.warning(f"⚠️ {selected_player}의 {start_date} ~ {end_date} 기간에 데이터가 없습니다.")
+    st.warning(f"⚠️ {selected_player}의 {selected_date} 날짜에 데이터가 없습니다.")
     st.stop()
 
 # pitcher_id 추출
