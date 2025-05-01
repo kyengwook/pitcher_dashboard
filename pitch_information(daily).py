@@ -169,6 +169,7 @@ summary_df.columns = [
 summary_df = summary_df.reset_index()
 st.dataframe(summary_df, hide_index=True, use_container_width=True)
 
+st.subheader("Matchups")
 batter_options = statcast_df['batter_name'].dropna().unique()
 selected_batter = st.selectbox('Select Batter', batter_options)
 
@@ -180,7 +181,6 @@ selected_inning = st.selectbox('Select Inning', inning_options)
 filtered_df = filtered_df[filtered_df['inning'] == selected_inning]
 filtered_df = filtered_df.sort_values(by='pitch_number')
 
-st.subheader("Matchups")
 
 # 📈 Plotly 시각화
 L, R = -0.708333, 0.708333
