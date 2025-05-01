@@ -2,26 +2,55 @@ import pandas as pd
 import plotly.graph_objects as go
 import streamlit as st
 from pybaseball import statcast_pitcher
+from datetime import datetime
 
-# 📅 날짜와 투수 ID 입력
-date = '2025-04-21'
-pitcher_id = 605400  # 예시: Shohei Ohtani
-
-# 📊 데이터 불러오기
-df = statcast_pitcher(date, date, pitcher_id)
+# 📊 Batter ID 파일 불러오기 (초기에 한번만)
 batter_ID = pd.read_excel('Batter_ID2023.xlsx')
 
+# 🎛️ Streamlit UI - 날짜 선택
+st.title("MLB Pitch Visualization")
 
-df['release_speed'] = df['release_speed'] * 1.60934
-df['release_speed'] = round(df['release_speed'], 1)
-df = pd.merge(df, batter_ID, on='batter', how='left')
+# 📅 날짜 선택 (start / end)
+col1, col2 = st.columns(2)
+with col1:
+    start_date = st.date_input('Select Start Date', datetime(2025, 4, 21))
+with col2:
+    end_date = st.date_input('Select End Date', datetime(2025, 4, 21))
 
+# 📊 데이터 불러오기
+@st.cache_data
+def load_data(start_date, end_date):
+    df = statcast_pitcher(str(start_date), str(end_date))
+    df['release_speed'] = df['release_speed'] * 1.60934
+    df['release_speed'] = round(df['release_speed'], 1)
+    df = pd.merge(df, batter_ID, on='batter', how='left')
+    return df
+
+df = load_data(start_date, end_date)
+
+if df.empty:
+    st.warning('⚠️ No data available for the selected date range.')
+    st.stop()
+
+# 🔥 player_name <-> pitcher_id 매핑 자동 생성
+pitcher_mapping_df = df[['player_name', 'pitcher']].drop_duplicates()
+pitcher_mapping = dict(zip(pitcher_mapping_df['player_name'], pitcher_mapping_df['pitcher']))
+
+# 🎛️ 선수 선택
+player_name_options = list(pitcher_mapping.keys())
+selected_player_name = st.selectbox('Select Pitcher', player_name_options)
+
+# ⏩ pitcher_id 할당 (자동 매핑)
+pitcher_id = pitcher_mapping[selected_player_name]
+
+# ➡️ 선택된 투수만 필터링
+df = df[df['pitcher'] == pitcher_id]
 pitcher_name = df['player_name'].iloc[0]
 
-# 🎛️ Streamlit UI
-st.title(f"{pitcher_name} - Pitch Visualization ({date})")
+# 🎛️ Streamlit UI (Batter/Inning)
+st.header(f"{pitcher_name} - Pitch Visualization ({start_date} to {end_date})")
 
-batter_options = df['batter_name'].unique()
+batter_options = df['batter_name'].dropna().unique()
 selected_batter = st.selectbox('Select Batter', batter_options)
 
 filtered_df = df[df['batter_name'] == selected_batter]
