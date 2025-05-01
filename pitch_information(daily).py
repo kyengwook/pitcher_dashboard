@@ -166,7 +166,7 @@ summary_df.columns = [
 ]
 
 # 테이블 출력
-summary_df = summary_df.reset_index()
+#summary_df = summary_df.reset_index()
 st.dataframe(summary_df, hide_index=True, use_container_width=True)
 
 st.subheader("Matchups")
