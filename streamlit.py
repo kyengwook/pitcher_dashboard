@@ -257,7 +257,7 @@ filtered_df = filtered_df.rename(columns={
 
 # 테이블 출력
 st.dataframe(filtered_df[['Pitch Number', 'Pitch Type', 'Outs When Up', 'Balls', 'Strikes',
-                          'Release Speed (km/h)', 'Release Spin Rate (rpm)', 'Pitch Outcome', 'Pitch Description']])
+                          'Release Speed (km/h)', 'Release Spin Rate (rpm)', 'Pitch Outcome', 'Pitch Description']],hide_index=True, use_container_width=True)
 
 
 
