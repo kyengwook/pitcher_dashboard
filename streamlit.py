@@ -240,6 +240,7 @@ styled_df = filtered_df[['Pitch Number', 'Pitch Type', 'Outs When Up', 'Balls', 
                          'Release Speed (km/h)', 'Release Spin Rate (rpm)', 'Pitch Outcome', 'Pitch Description']] \
     .style.set_properties(**{'text-align': 'center'})
 
-# 테이블 출력
-st.dataframe(styled_df)
+# Streamlit에서 HTML로 출력
+st.write(styled_df.render(), unsafe_allow_html=True)
+
 
