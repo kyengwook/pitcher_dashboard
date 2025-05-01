@@ -134,11 +134,25 @@ summary_df['release_pos_x'] = (summary_df['release_pos_x'] * 30.48 * (-1)).round
 summary_df['release_extension'] = (summary_df['release_extension'] * 30.48).round(1)
 
 
-# column 이름 정리
-summary_df.columns = ['_'.join(col).strip() for col in summary_df.columns.values]
-summary_df = summary_df.reset_index()
+# 📊 Pitch Summary에서 컬럼 이름 정리
+summary_df.columns = [
+    'Pitches', 
+    'Release Speed Min(km/h)', 
+    'Release Speed AVG(km/h)', 
+    'Release Speed Max(km/h)', 
+    'Release Spin Rate(rpm)', 
+    'Vertical Release Pos(cm)', 
+    'Horizontal Release Pos(cm)', 
+    'Release Extension(cm)', 
+    'Vertical Break(cm)', 
+    'Horizontal Break(cm)', 
+    'Spin Axis(°)'
+]
 
+# 테이블 출력
+summary_df = summary_df.reset_index()
 st.dataframe(summary_df)
+
 
 batter_options = statcast_df['batter_name'].dropna().unique()
 selected_batter = st.selectbox('Select Batter', batter_options)
