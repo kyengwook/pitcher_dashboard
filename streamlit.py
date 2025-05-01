@@ -55,25 +55,25 @@ player_options = team_df['player_name'].dropna().unique()
 selected_player = st.selectbox('Select Pitcher', player_options)
 
 # 선수가 선택되었을 경우 필터링
-filtered_df = team_df[team_df['player_name'] == selected_player]
+filtered_player_df = team_df[team_df['player_name'] == selected_player]
 
 # 📢 해당 선수의 데이터가 없으면 경고 후 종료
-if filtered_df.empty:
+if filtered_player_df.empty:
     st.warning(f"⚠️ {selected_player}의 데이터가 없습니다.")
     st.stop()
 
-# 3. 날짜 선택
-start_date = filtered_df.index.min().date()
-end_date = filtered_df.index.max().date()
+# 3. 날짜 선택 - 해당 선수가 참여한 날짜만 필터링
+start_date = filtered_player_df.index.min().date()
+end_date = filtered_player_df.index.max().date()
 
 col1, col2 = st.columns(2)
 with col1:
-    start_date = st.date_input('Start Date', start_date)
+    start_date = st.date_input('Start Date', start_date, min_value=start_date, max_value=end_date)
 with col2:
-    end_date = st.date_input('End Date', end_date)
+    end_date = st.date_input('End Date', end_date, min_value=start_date, max_value=end_date)
 
 # 날짜 필터링
-filtered_df = filtered_df.loc[start_date:end_date]
+filtered_df = filtered_player_df.loc[start_date:end_date]
 
 # 📢 날짜 범위 내 데이터가 없으면 경고 후 종료
 if filtered_df.empty:
@@ -179,3 +179,4 @@ st.plotly_chart(scatter_fig)
 st.subheader("Pitch Details")
 st.dataframe(filtered_df[['pitch_number', 'pitch_name', 'outs_when_up', 'balls', 'strikes',
                           'release_speed', 'release_spin_rate', 'type', 'description']])
+
