@@ -1,90 +1,91 @@
-# streamlit_app.py
-
 import pandas as pd
 import plotly.graph_objects as go
 import streamlit as st
-from pybaseball import statcast_pitcher
 import requests
 import io
+from pybaseball import statcast_pitcher
 
-# 📥 Google Drive에서 CSV 데이터 로드
+# 📂 Google Drive CSV 데이터 로드
 @st.cache_data
 def load_data_from_drive():
-    file_id = "1sWJCEA7MUrOCGfj61ES1JQHJGBfYVYN3"
+    file_id = "1sWJCEA7MUrOCGfj61ES1JQHJGBfYVYN3"  # 여기에 본인의 파일 ID 유지
     download_url = f"https://drive.google.com/uc?export=download&id={file_id}"
     response = requests.get(download_url)
     response.raise_for_status()
+    
     df = pd.read_csv(io.StringIO(response.content.decode("utf-8")), encoding='utf-8')
-    df = df[df['game_type'] == 'R']  # 정규 시즌만
+    df = df[df['game_type'] == 'R']  # 정규시즌만
     df['game_date'] = pd.to_datetime(df['game_date'])
     df = df.set_index('game_date').sort_index()
     return df
 
-# 📥 Batter ID 엑셀 로드
+# 📋 Batter ID 파일 불러오기
 @st.cache_data
 def load_batter_id():
     batter_ID = pd.read_excel('Batter_ID2023.xlsx')
     return batter_ID
 
-# 📊 데이터 준비
+# 데이터 불러오기
 df = load_data_from_drive()
 batter_ID = load_batter_id()
 
-# dtype 통일 후 병합
-df['batter'] = df['batter'].astype(int)
-batter_ID['batter'] = batter_ID['batter'].astype(int)
-df = pd.merge(df, batter_ID, on='batter', how='left')
-
-# km/h로 변환
-df['release_speed'] = round(df['release_speed'] * 1.60934, 1)
-
-# 🎛️ Streamlit UI
-st.title('⚾️ MLB Pitcher Dashboard')
-
-# 날짜 선택
-col1, col2 = st.columns(2)
-with col1:
-    start_date = st.date_input('Start Date', df.index.min().date())
-with col2:
-    end_date = st.date_input('End Date', df.index.max().date())
-
-# 날짜 필터
-filtered_df = df[(df.index.date >= start_date) & (df.index.date <= end_date)]
-
-# 투수 선택
-player_options = filtered_df['player_name'].dropna().unique()
-selected_player = st.selectbox('Select Pitcher', sorted(player_options))
-
-# 선택 투수 데이터 필터
-player_df = filtered_df[filtered_df['player_name'] == selected_player]
-
-if player_df.empty:
-    st.warning(f'⚠️ No pitch data found for {selected_player} between {start_date} and {end_date}.')
+# 📢 데이터셋 비었으면 경고 후 종료
+if df.empty:
+    st.error("❌ 데이터셋이 비어있습니다. Google Drive 파일 ID나 파일 내용을 확인하세요.")
     st.stop()
 
+# 📅 날짜 선택 (Index 비었을 때 대비)
+if not df.empty:
+    default_start = df.index.min().date()
+    default_end = df.index.max().date()
+else:
+    default_start = pd.to_datetime('2023-01-01').date()
+    default_end = pd.to_datetime('2023-12-31').date()
+
+col1, col2 = st.columns(2)
+with col1:
+    start_date = st.date_input('Start Date', default_start)
+with col2:
+    end_date = st.date_input('End Date', default_end)
+
+# 📊 player_name 선택
+player_options = df['player_name'].dropna().unique()
+selected_player = st.selectbox('Select Pitcher', player_options)
+
+# 📈 선택한 날짜/선수 필터링
+filtered_df = df.loc[start_date:end_date]
+player_df = filtered_df[filtered_df['player_name'] == selected_player]
+
+# 📢 해당 선수/기간 데이터 없으면 경고 후 종료
+if player_df.empty:
+    st.warning(f"⚠️ {selected_player}의 {start_date} ~ {end_date} 데이터가 없습니다.")
+    st.stop()
+
+# pitcher_id 추출
 pitcher_id = player_df['pitcher'].iloc[0]
 
-# 📊 Statcast 데이터 수집
-st.info(f'Fetching Statcast data for {selected_player} ({pitcher_id}) from {start_date} to {end_date} ...')
+# 🛰️ pybaseball로 해당 날짜 범위 statcast 데이터 불러오기
 statcast_df = statcast_pitcher(start_date.strftime('%Y-%m-%d'), end_date.strftime('%Y-%m-%d'), pitcher_id)
 
-# Batter ID merge
-statcast_df['batter'] = statcast_df['batter'].astype(int)
-statcast_df = pd.merge(statcast_df, batter_ID, on='batter', how='left')
-
-# km/h 변환
+# 📏 단위 변환 + Batter_ID merge
 statcast_df['release_speed'] = statcast_df['release_speed'] * 1.60934
 statcast_df['release_speed'] = round(statcast_df['release_speed'], 1)
+statcast_df = pd.merge(statcast_df, batter_ID, on='batter', how='left')
 
-# UI - 타자 선택 & 이닝 선택
+# 📛 pitcher_name
+pitcher_name = statcast_df['player_name'].iloc[0]
+
+# 🎛️ Streamlit UI - Batter/Inning 선택
+st.title(f"{pitcher_name} - Pitch Visualization ({start_date} ~ {end_date})")
+
 batter_options = statcast_df['batter_name'].dropna().unique()
-selected_batter = st.selectbox('Select Batter', sorted(batter_options))
+selected_batter = st.selectbox('Select Batter', batter_options)
 
 filtered_df = statcast_df[statcast_df['batter_name'] == selected_batter]
 inning_options = filtered_df['inning'].unique()
-selected_inning = st.selectbox('Select Inning', sorted(inning_options))
+selected_inning = st.selectbox('Select Inning', inning_options)
 
-# 이닝 필터
+# 📊 최종 필터링
 filtered_df = filtered_df[filtered_df['inning'] == selected_inning]
 filtered_df = filtered_df.sort_values(by='pitch_number')
 
@@ -114,6 +115,7 @@ for pitch_name, style in pitch_styles.items():
     pitch_data = filtered_df[filtered_df['pitch_name'] == pitch_name]
     if pitch_data.empty:
         continue
+    pitch_data = pitch_data.copy()  # SettingWithCopyWarning 방지
     pitch_data['custom_hover'] = pitch_data.apply(
         lambda row: (
             f"{row['release_speed']} km/h<br>"
@@ -139,12 +141,12 @@ for pitch_name, style in pitch_styles.items():
 
 # 스트라이크존과 타석 추가
 scatter_fig.add_shape(type='rect', x0=L, x1=R, y0=Bot, y1=Top, line=dict(color='black', width=2))
-scatter_fig.add_shape(type='path',
+scatter_fig.add_shape(type='path', 
     path=f'M {R-0.1},{0} L {L+0.1},{0} L {L-0.1},{-0.6} L 0,{-1.0} L {R+0.1},{-0.6} Z',
     line=dict(color='grey', width=1))
 
 scatter_fig.update_layout(
-    title=f'{selected_player} - Pitch Location vs {selected_batter} (Inning {selected_inning})',
+    title=f'{pitcher_name} - Pitch Location vs {selected_batter} (Inning {selected_inning})',
     xaxis=dict(title='', range=[L-2.5, R+2.5], showticklabels=False),
     yaxis=dict(title='', range=[Bot-3, Top+2], showticklabels=False),
     width=700,
@@ -158,5 +160,6 @@ st.plotly_chart(scatter_fig)
 st.subheader("Pitch Details")
 st.dataframe(filtered_df[['pitch_number', 'pitch_name', 'outs_when_up', 'balls', 'strikes',
                           'release_speed', 'release_spin_rate', 'type', 'description']])
+
 
 
