@@ -5,6 +5,7 @@ import requests
 import io
 from pybaseball import statcast_pitcher
 
+st.set_page_config(layout="wide")
 # 📂 Google Drive CSV 데이터 로드
 @st.cache_data
 def load_data_from_drive():
@@ -194,14 +195,6 @@ st.dataframe(filtered_df[['pitch_number', 'pitch_name', 'outs_when_up', 'balls',
 # 📊 우측 공간 요약
 with st.columns(2)[1]:  # 우측 공간에 배치
     st.header(f"📊 {pitcher_name} Summary")
-    
-    # 메트릭 표시
-    st.metric("평균 구속", f"{filtered_df['release_speed'].mean():.1f} km/h")
-    st.metric("평균 회전수", f"{filtered_df['release_spin_rate'].mean():.0f} rpm")
-    st.metric("총 투구 수", f"{filtered_df.shape[0]}개")
-
-    # 구종별 요약
-    st.subheader("구종별 요약 (Pitch Type Summary)")
     summary_df = filtered_df.groupby('pitch_name').agg({
         'pitch_name': 'count',
         'release_speed': ['min', 'mean', 'max'],
