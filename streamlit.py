@@ -216,26 +216,25 @@ scatter_fig.update_layout(
 )
 
 # Plotly 시각화 출력
-col1, col2 = st.columns([2, 1])  # 왼쪽은 plot, 오른쪽은 구종별 통계
-with col1:
-    st.plotly_chart(scatter_fig)
+st.plotly_chart(scatter_fig)
 
-with col2:
-    # 📋 테이블
-    st.subheader("Pitch Details")
+# Pitch Details 테이블을 scatter plot 아래에 위치하도록 수정
+st.subheader("Pitch Details")
 
-    # 컬럼 이름 정리
-    filtered_df = filtered_df.rename(columns={
-        'pitch_number': 'Pitch Number',
-        'pitch_name': 'Pitch Type',
-        'outs_when_up': 'Outs When Up',
-        'balls': 'Balls',
-        'strikes': 'Strikes',
-        'release_speed': 'Release Speed (km/h)',
-        'release_spin_rate': 'Release Spin Rate (rpm)',
-        'type': 'Pitch Outcome',
-        'description': 'Pitch Description'
-    })
+# 컬럼 이름 정리
+filtered_df = filtered_df.rename(columns={
+    'pitch_number': 'Pitch Number',
+    'pitch_name': 'Pitch Type',
+    'outs_when_up': 'Outs When Up',
+    'balls': 'Balls',
+    'strikes': 'Strikes',
+    'release_speed': 'Release Speed (km/h)',
+    'release_spin_rate': 'Release Spin Rate (rpm)',
+    'type': 'Pitch Outcome',
+    'description': 'Pitch Description'
+})
 
-    st.dataframe(filtered_df[['Pitch Number', 'Pitch Type', 'Outs When Up', 'Balls', 'Strikes',
-                              'Release Speed (km/h)', 'Release Spin Rate (rpm)', 'Pitch Outcome', 'Pitch Description']])
+# 테이블 출력
+st.dataframe(filtered_df[['Pitch Number', 'Pitch Type', 'Outs When Up', 'Balls', 'Strikes',
+                          'Release Speed (km/h)', 'Release Spin Rate (rpm)', 'Pitch Outcome', 'Pitch Description']])
+
