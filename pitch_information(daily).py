@@ -140,7 +140,7 @@ summary_df = filtered_df.groupby('pitch_name').agg({
     'pfx_z': ['mean'],
     'pfx_x': ['mean'],
     'spin_axis': ['mean']
-}).rename(columns={'pitch_name': 'pitches'}).round(1)  # 소수점 첫째 자리까지 반올림
+}).rename(columns={'pitch_name': 'Pitch Type'}).round(1)  # 소수점 첫째 자리까지 반올림
 
 # 📏 단위 변환 (인치 -> 센티미터) 후 소수점 첫째 자리까지 반올림
 summary_df['release_speed'] = (summary_df['release_speed'] * 1.60934).round(1)
