@@ -219,6 +219,7 @@ for pitch_name, style in pitch_styles.items():
     pitch_data = pitch_data.copy()
     pitch_data['custom_hover'] = pitch_data.apply(
         lambda row: (
+            f"{row['pitch_name']}<br>"
             f"{row['release_speed']} km/h<br>"
             f"{row['description']}<br>"
             f"{row['events']}" if row['description'] == 'hit_into_play' else
