@@ -8,7 +8,7 @@ from pybaseball import statcast_pitcher
 # 📂 Google Drive CSV 데이터 로드
 @st.cache_data
 def load_data_from_drive():
-    file_id = "1sWJCEA7MUrOCGfj61ES1JQHJGBfYVYN3"  # 여기에 본인의 파일 ID 유지
+    file_id = "1sWJCEA7MUrOCGfj61ES1JQHJGBfYVYN3"  # 본인의 파일 ID
     download_url = f"https://drive.google.com/uc?export=download&id={file_id}"
     response = requests.get(download_url)
     response.raise_for_status()
@@ -34,44 +34,61 @@ if df.empty:
     st.error("❌ 데이터셋이 비어있습니다. Google Drive 파일 ID나 파일 내용을 확인하세요.")
     st.stop()
 
-# 1. 팀 선택
-team_options = df['home_team'].unique().tolist() + df['away_team'].unique().tolist()
-team_options = list(set(team_options))  # 중복된 팀 제거
+st.title("⚾ MLB Pitching Visualization Dashboard")
+
+# ⚾️ 1️⃣ 팀 선택 (placeholder 포함)
+teams = sorted(set(df['home_team'].unique()).union(df['away_team'].unique()))
+team_options = ['— Select Team —'] + teams
 selected_team = st.selectbox('Select Team', team_options)
 
-# 해당 팀의 데이터 필터링
-filtered_team_df = df[(df['home_team'] == selected_team) | (df['away_team'] == selected_team)]
-
-# 팀 선택 후 홈팀 또는 원정팀에 맞춰 inning_topbot 필터링
-if selected_team in filtered_team_df['home_team'].values:
-    # 홈팀일 경우: inning_topbot = 'Top'
-    team_df = filtered_team_df[(filtered_team_df['home_team'] == selected_team) & (filtered_team_df['inning_topbot'] == 'Top')]
-else:
-    # 원정팀일 경우: inning_topbot = 'Bot'
-    team_df = filtered_team_df[(filtered_team_df['away_team'] == selected_team) & (filtered_team_df['inning_topbot'] == 'Bot')]
-
-# 2. 선수 선택
-player_options = team_df['player_name'].dropna().unique()
-selected_player = st.selectbox('Select Pitcher', player_options)
-
-# 선수가 선택되었을 경우 필터링
-filtered_player_df = team_df[team_df['player_name'] == selected_player]
-
-# 📢 해당 선수의 데이터가 없으면 경고 후 종료
-if filtered_player_df.empty:
-    st.warning(f"⚠️ {selected_player}의 데이터가 없습니다.")
+if selected_team == '— Select Team —':
+    st.info('ℹ️ 팀을 먼저 선택해주세요.')
     st.stop()
 
-# 3. 날짜 선택 - 해당 선수가 참여한 날짜만 선택
-available_dates = filtered_player_df.index.normalize().unique()  # 날짜만 고유하게 추출
-available_dates = sorted([d.date() for d in available_dates])   # datetime.date로 변환
+# 📋 해당 팀 소속 선수 데이터 필터링
+filtered_team_df = df.copy()
 
-selected_date = st.selectbox('Select Date', available_dates)
+if selected_team in filtered_team_df['home_team'].values:
+    team_df = filtered_team_df[
+        (filtered_team_df['home_team'] == selected_team) & (filtered_team_df['inning_topbot'] == 'Top')
+    ]
+else:
+    team_df = filtered_team_df[
+        (filtered_team_df['away_team'] == selected_team) & (filtered_team_df['inning_topbot'] == 'Bot')
+    ]
 
-# 선택된 날짜 데이터 필터링
+if team_df.empty:
+    st.warning(f"⚠️ {selected_team} 팀의 데이터가 없습니다.")
+    st.stop()
+
+# ⚾️ 2️⃣ 선수 선택 (placeholder 포함)
+player_options = team_df['player_name'].dropna().unique()
+player_options = ['— Select Pitcher —'] + sorted(player_options)
+selected_player = st.selectbox('Select Pitcher', player_options)
+
+if selected_player == '— Select Pitcher —':
+    st.info('ℹ️ 선수를 선택해주세요.')
+    st.stop()
+
+filtered_player_df = team_df[team_df['player_name'] == selected_player]
+
+if filtered_player_df.empty:
+    st.warning(f"⚠️ {selected_player} 선수의 데이터가 없습니다.")
+    st.stop()
+
+# 📅 3️⃣ 날짜 선택 (placeholder 포함)
+available_dates = filtered_player_df.index.normalize().unique()
+available_dates = sorted([d.date() for d in available_dates])
+date_options = ['— Select Date —'] + available_dates
+selected_date = st.selectbox('Select Date', date_options)
+
+if selected_date == '— Select Date —':
+    st.info('ℹ️ 날짜를 선택해주세요.')
+    st.stop()
+
+# 📋 선택한 날짜 데이터 필터링
 filtered_df = filtered_player_df[filtered_player_df.index.normalize() == pd.Timestamp(selected_date)]
 
-# 📢 선택한 날짜에 데이터 없으면 경고 후 종료
 if filtered_df.empty:
     st.warning(f"⚠️ {selected_player}의 {selected_date} 날짜에 데이터가 없습니다.")
     st.stop()
@@ -79,8 +96,8 @@ if filtered_df.empty:
 # pitcher_id 추출
 pitcher_id = filtered_df['pitcher'].iloc[0]
 
-# 🛰️ pybaseball로 해당 날짜 범위 statcast 데이터 불러오기
-statcast_df = statcast_pitcher(start_date.strftime('%Y-%m-%d'), end_date.strftime('%Y-%m-%d'), pitcher_id)
+# 🛰️ pybaseball로 statcast 데이터 불러오기 (선택한 날짜 하루만)
+statcast_df = statcast_pitcher(selected_date.strftime('%Y-%m-%d'), selected_date.strftime('%Y-%m-%d'), pitcher_id)
 
 # 📏 단위 변환 + Batter_ID merge
 statcast_df['release_speed'] = statcast_df['release_speed'] * 1.60934
@@ -91,7 +108,7 @@ statcast_df = pd.merge(statcast_df, batter_ID, on='batter', how='left')
 pitcher_name = statcast_df['player_name'].iloc[0]
 
 # 🎛️ Streamlit UI - Batter/Inning 선택
-st.title(f"{pitcher_name} - Pitch Visualization ({start_date} ~ {end_date})")
+st.header(f"{pitcher_name} - Pitch Visualization ({selected_date})")
 
 batter_options = statcast_df['batter_name'].dropna().unique()
 selected_batter = st.selectbox('Select Batter', batter_options)
@@ -130,7 +147,7 @@ for pitch_name, style in pitch_styles.items():
     pitch_data = filtered_df[filtered_df['pitch_name'] == pitch_name]
     if pitch_data.empty:
         continue
-    pitch_data = pitch_data.copy()  # SettingWithCopyWarning 방지
+    pitch_data = pitch_data.copy()
     pitch_data['custom_hover'] = pitch_data.apply(
         lambda row: (
             f"{row['release_speed']} km/h<br>"
@@ -175,4 +192,5 @@ st.plotly_chart(scatter_fig)
 st.subheader("Pitch Details")
 st.dataframe(filtered_df[['pitch_number', 'pitch_name', 'outs_when_up', 'balls', 'strikes',
                           'release_speed', 'release_spin_rate', 'type', 'description']])
+
 
