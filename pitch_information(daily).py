@@ -40,12 +40,29 @@ st.title("⚾ MLB 2025 - Daily Pitch Information")
 st.caption("🧑🏻‍💻 App developed by Kyengwook  |  📬 kyengwook8@naver.com  |  [GitHub](https://github.com/kyengwook/kyengwook)  |  [Instagram](https://instagram.com/kyengwook)")
 st.caption("📊 Data source: [Baseball Savant](https://baseballsavant.mlb.com/) – MLB 2025 regular season data.")
 
-# ⚾️ 1️⃣ 팀 선택 (placeholder 포함)
-teams = sorted(set(df['home_team'].unique()).union(df['away_team'].unique()))
-team_options = ['— Select Team —'] + teams
+# ⚾️ 1️⃣ Division 선택 (placeholder 포함)
+divisions = {
+    'NL East': ['PHI', 'NYM', 'MIA', 'WSH', 'ATL'],
+    'NL Central': ['CHC', 'MIL', 'STL', 'CIN', 'PIT'],
+    'NL West': ['LAD', 'SD', 'SF', 'AZ', 'COL'],
+    'AL East': ['NYY', 'BOS', 'TOR', 'TB', 'BAL'],
+    'AL Central': ['DET', 'KC', 'CLE', 'MIN', 'CWS'],
+    'AL West': ['TEX', 'LAA', 'HOU', 'OAK', 'SEA']
+}
+
+division_options = ['— Select Division —'] + list(divisions.keys())
+selected_division = st.selectbox('Select Division', division_options)
+
+if selected_division == '— Select Division —':
+    st.info('ℹ️ Division을 먼저 선택해주세요.')
+    st.stop()
+
+# 📂 선택한 Division의 팀 필터링
+selected_teams = divisions[selected_division]
+team_options = ['— Select Team —'] + selected_teams
 selected_team = st.selectbox('Select Team', team_options)
 
-if selected_team == 'Select Team':
+if selected_team == '— Select Team —':
     st.info('ℹ️ 팀을 먼저 선택해주세요.')
     st.stop()
 
@@ -66,7 +83,7 @@ player_options = team_df['player_name'].dropna().unique()
 player_options = ['— Select Pitcher —'] + sorted(player_options)
 selected_player = st.selectbox('Select Pitcher', player_options)
 
-if selected_player == 'Select Pitcher':
+if selected_player == '— Select Pitcher —':
     st.info('ℹ️ 선수를 선택해주세요.')
     st.stop()
 
@@ -83,7 +100,7 @@ available_dates = sorted([d.date() for d in available_dates])
 date_options = ['— Select Date —'] + available_dates
 selected_date = st.selectbox('Select Date', date_options)
 
-if selected_date == 'Select Date':
+if selected_date == '— Select Date —':
     st.info('ℹ️ 날짜를 선택해주세요.')
     st.stop()
 
@@ -133,7 +150,6 @@ summary_df['release_pos_z'] = (summary_df['release_pos_z'] * 30.48).round(1)
 summary_df['release_pos_x'] = (summary_df['release_pos_x'] * 30.48 * (-1)).round(1)
 summary_df['release_extension'] = (summary_df['release_extension'] * 30.48).round(1)
 
-
 # 📊 Pitch Summary에서 컬럼 이름 정리
 summary_df.columns = [
     'Pitches', 
@@ -152,9 +168,6 @@ summary_df.columns = [
 # 테이블 출력
 summary_df = summary_df.reset_index()
 st.dataframe(summary_df, hide_index=True, use_container_width=True)
-
-
-
 
 batter_options = statcast_df['batter_name'].dropna().unique()
 selected_batter = st.selectbox('Select Batter', batter_options)
@@ -232,11 +245,8 @@ scatter_fig.update_layout(
     showlegend=True
 )
 
-
 # Plotly 시각화 출력
 st.plotly_chart(scatter_fig)
-
-
 
 # Pitch Details 테이블을 아래에 위치하도록 수정
 st.subheader("Pitch Details")
@@ -256,7 +266,8 @@ filtered_df = filtered_df.rename(columns={
 
 # 테이블 출력
 st.dataframe(filtered_df[['Pitch Number', 'Pitch Type', 'Outs When Up', 'Balls', 'Strikes',
-                          'Release Speed (km/h)', 'Release Spin Rate (rpm)', 'Pitch Outcome', 'Pitch Description']],hide_index=True, use_container_width=True)
+                          'Release Speed (km/h)', 'Release Spin Rate (rpm)', 'Pitch Outcome', 'Pitch Description']], hide_index=True, use_container_width=True)
+
 
 
 
