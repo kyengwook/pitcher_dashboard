@@ -169,6 +169,7 @@ summary_df.columns = [
 ]
 
 # 인덱스는 그대로 유지하고 테이블 출력
+summary_df = summary_df.sort_values('Pitches', ascending=False)
 st.dataframe(summary_df, use_container_width=True)
 
 
