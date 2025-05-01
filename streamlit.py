@@ -149,10 +149,10 @@ summary_df.columns = [
     'Spin Axis(°)'
 ]
 
-# 인덱스 제거 후 데이터프레임 출력
-summary_df = summary_df.reset_index(drop=True)
-# 테이블 출력 (인덱스 제거)
-st.dataframe(summary_df, use_container_width=True)
+# 테이블 출력
+summary_df = summary_df.reset_index()
+st.dataframe(summary_df, hide_index=True, use_container_width=True)
+
 
 
 
