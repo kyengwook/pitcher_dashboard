@@ -152,6 +152,7 @@ summary_df['release_extension'] = (summary_df['release_extension'] * 30.48).roun
 
 # 📊 Pitch Summary에서 컬럼 이름 정리
 summary_df.columns = [
+    'Pitch Type',
     'Pitches', 
     'Release Speed Min(km/h)', 
     'Release Speed AVG(km/h)', 
