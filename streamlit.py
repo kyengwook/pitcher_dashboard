@@ -126,7 +126,7 @@ summary_df = filtered_df.groupby('pitch_name').agg({
 }).rename(columns={'pitch_name': 'pitches'}).round(1)  # 소수점 첫째 자리까지 반올림
 
 # 📏 단위 변환 (인치 -> 센티미터) 후 소수점 첫째 자리까지 반올림
-summary_df['release_speed'] = summary_df['release_speed'] * 1.60934.round(1)
+summary_df['release_speed'] = (summary_df['release_speed'] * 1.60934).round(1)
 summary_df['pfx_x'] = (summary_df['pfx_x'] * 30.48 * -1).round(1)
 summary_df['pfx_z'] = (summary_df['pfx_z'] * 30.48).round(1)
 summary_df['release_pos_z'] = (summary_df['release_pos_z'] * 30.48).round(1)
