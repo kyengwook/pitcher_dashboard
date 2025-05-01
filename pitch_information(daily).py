@@ -7,7 +7,7 @@ from pybaseball import statcast_pitcher
 
 st.set_page_config(layout="wide")
 
-# 📂 Google Drive CSV 데이터 로드
+#데이터 로드
 @st.cache_data
 def load_data_from_drive():
     file_id = "1sWJCEA7MUrOCGfj61ES1JQHJGBfYVYN3"  # 본인의 파일 ID
@@ -21,7 +21,6 @@ def load_data_from_drive():
     df = df.set_index('game_date').sort_index()
     return df
 
-# 📋 Batter ID 파일 불러오기
 @st.cache_data
 def load_batter_id():
     batter_ID = pd.read_excel('Batter_ID(2025).xlsx')
@@ -31,7 +30,6 @@ def load_batter_id():
 df = load_data_from_drive()
 batter_ID = load_batter_id()
 
-# 📢 데이터셋 비었으면 경고 후 종료
 if df.empty:
     st.error("❌ 데이터셋이 비어있습니다. Google Drive 파일 ID나 파일 내용을 확인하세요.")
     st.stop()
@@ -40,7 +38,7 @@ st.title("⚾ MLB 2025 - Daily Pitch Information")
 st.caption("🧑🏻‍💻 App developed by Kyengwook  |  📬 kyengwook8@naver.com  |  [GitHub](https://github.com/kyengwook/kyengwook)  |  [Instagram](https://instagram.com/kyengwook)")
 st.caption("📊 Data source: [Baseball Savant](https://baseballsavant.mlb.com/) – MLB 2025 regular season data.")
 
-# ⚾️ 1️⃣ Division 선택 (placeholder 포함)
+# Division 선택 (placeholder 포함)
 divisions = {
     'NL East': ['PHI', 'NYM', 'MIA', 'WSH', 'ATL'],
     'NL Central': ['CHC', 'MIL', 'STL', 'CIN', 'PIT'],
@@ -57,7 +55,7 @@ if selected_division == '— Select Division —':
     st.info('ℹ️ Division을 먼저 선택해주세요.')
     st.stop()
 
-# 📂 선택한 Division의 팀 필터링
+# 선택한 Division의 팀 필터링
 selected_teams = divisions[selected_division]
 team_options = ['— Select Team —'] + selected_teams
 selected_team = st.selectbox('Select Team', team_options)
@@ -66,7 +64,7 @@ if selected_team == '— Select Team —':
     st.info('ℹ️ 팀을 먼저 선택해주세요.')
     st.stop()
 
-# 📋 해당 팀 소속 선수 데이터 필터링
+# 해당 팀 소속 선수 데이터 필터링
 filtered_team_df = df.copy()
 
 team_df = filtered_team_df[
@@ -78,7 +76,7 @@ if team_df.empty:
     st.warning(f"⚠️ {selected_team} 팀의 데이터가 없습니다.")
     st.stop()
 
-# ⚾️ 2️⃣ 선수 선택 (placeholder 포함)
+# 선수 선택 (placeholder 포함)
 player_options = team_df['player_name'].dropna().unique()
 player_options = ['— Select Pitcher —'] + sorted(player_options)
 selected_player = st.selectbox('Select Pitcher', player_options)
@@ -87,14 +85,13 @@ if selected_player == '— Select Pitcher —':
     st.info('ℹ️ 선수를 선택해주세요.')
     st.stop()
 
-# 선택된 선수에 대한 데이터가 존재하는지 확인
 filtered_player_df = team_df[team_df['player_name'] == selected_player]
 
 if filtered_player_df.empty:
     st.warning(f"⚠️ {selected_player} 선수의 데이터가 없습니다.")
     st.stop()
 
-# 📅 3️⃣ 날짜 선택 (placeholder 포함)
+# 날짜 선택 (placeholder 포함)
 available_dates = filtered_player_df.index.normalize().unique()
 available_dates = sorted([d.date() for d in available_dates])
 date_options = ['— Select Date —'] + available_dates
@@ -104,7 +101,7 @@ if selected_date == '— Select Date —':
     st.info('ℹ️ 날짜를 선택해주세요.')
     st.stop()
 
-# 📋 선택한 날짜 데이터 필터링
+# 선택한 날짜 데이터 필터링
 filtered_df = filtered_player_df[filtered_player_df.index.normalize() == pd.Timestamp(selected_date)]
 
 if filtered_df.empty:
@@ -114,21 +111,21 @@ if filtered_df.empty:
 # pitcher_id 추출
 pitcher_id = filtered_df['pitcher'].iloc[0]
 
-# 🛰️ pybaseball로 statcast 데이터 불러오기 (선택한 날짜 하루만)
+
 statcast_df = statcast_pitcher(selected_date.strftime('%Y-%m-%d'), selected_date.strftime('%Y-%m-%d'), pitcher_id)
 
-# 📏 단위 변환 + Batter_ID merge
+#단위 변환 + Batter_ID merge
 statcast_df['release_speed'] = statcast_df['release_speed'] * 1.60934
 statcast_df['release_speed'] = round(statcast_df['release_speed'], 1)
 statcast_df = pd.merge(statcast_df, batter_ID, on='batter', how='left')
 
-# 📛 pitcher_name
+#pitcher_name
 pitcher_name = statcast_df['player_name'].iloc[0]
 
-# 🎛️ Streamlit UI - Batter/Inning 선택
+#Batter/Inning 선택
 st.header(f"{pitcher_name} - Pitch Information ({selected_date})")
 
-# 📊 구종별 통계
+#구종별 통계
 st.subheader("Pitch Summary(Game)")
 summary_df = filtered_df.groupby('pitch_name').agg({
     'pitch_name': 'count',
@@ -142,10 +139,10 @@ summary_df = filtered_df.groupby('pitch_name').agg({
     'spin_axis': ['mean']
 }).round(1)
 
-# 인덱스 이름 변경 (중요!)
+# 인덱스 이름 변경
 summary_df.index.name = 'Pitch Type'
 
-# 📏 단위 변환 (인치 -> 센티미터) 후 소수점 첫째 자리까지 반올림
+#단위 변환 (인치 -> 센티미터), 소수점 첫째 자리까지 반올림
 summary_df['release_speed'] = (summary_df['release_speed'] * 1.60934).round(1)
 summary_df['pfx_x'] = (summary_df['pfx_x'] * 30.48 * -1).round(1)
 summary_df['pfx_z'] = (summary_df['pfx_z'] * 30.48).round(1)
@@ -153,7 +150,7 @@ summary_df['release_pos_z'] = (summary_df['release_pos_z'] * 30.48).round(1)
 summary_df['release_pos_x'] = (summary_df['release_pos_x'] * 30.48 * (-1)).round(1)
 summary_df['release_extension'] = (summary_df['release_extension'] * 30.48).round(1)
 
-# 📊 Pitch Summary에서 컬럼 이름 정리
+#Pitch Summary에서 컬럼 이름 정리
 summary_df.columns = [
     'Pitches', 
     'Release Speed Min(km/h)', 
@@ -181,16 +178,16 @@ filtered_df = statcast_df[statcast_df['batter_name'] == selected_batter]
 inning_options = filtered_df['inning'].unique()
 selected_inning = st.selectbox('Select Inning', inning_options)
 
-# 📊 최종 필터링
+#최종 필터링
 filtered_df = filtered_df[filtered_df['inning'] == selected_inning]
 filtered_df = filtered_df.sort_values(by='pitch_number')
 
-# 🔥 중복 제거 (pitch_number + inning + batter 기준)
+#중복 데이터 제거 (pitch_number + inning + batter 기준)
 filtered_df = filtered_df.drop_duplicates(subset=['pitch_number', 'inning', 'batter'])
 
 
 
-# 📈 Plotly 시각화
+#Plotly 시각화
 L, R = -0.708333, 0.708333
 Bot, Top = 1.5, 3.5
 
@@ -261,7 +258,6 @@ scatter_fig.update_layout(
 # Plotly 시각화 출력
 st.plotly_chart(scatter_fig)
 
-# Pitch Details 테이블을 아래에 위치하도록 수정
 st.subheader("Pitch Details")
 
 # 컬럼 이름 정리
