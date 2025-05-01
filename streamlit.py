@@ -6,6 +6,7 @@ import io
 from pybaseball import statcast_pitcher
 
 st.set_page_config(layout="wide")
+
 # 📂 Google Drive CSV 데이터 로드
 @st.cache_data
 def load_data_from_drive():
@@ -56,7 +57,6 @@ team_df = filtered_team_df[
     ((filtered_team_df['away_team'] == selected_team) & (filtered_team_df['inning_topbot'] == 'Bot'))
 ]
 
-
 if team_df.empty:
     st.warning(f"⚠️ {selected_team} 팀의 데이터가 없습니다.")
     st.stop()
@@ -70,6 +70,7 @@ if selected_player == 'Select Pitcher':
     st.info('ℹ️ 선수를 선택해주세요.')
     st.stop()
 
+# 선택된 선수에 대한 데이터가 존재하는지 확인
 filtered_player_df = team_df[team_df['player_name'] == selected_player]
 
 if filtered_player_df.empty:
@@ -186,15 +187,14 @@ scatter_fig.update_layout(
     showlegend=True
 )
 
-st.plotly_chart(scatter_fig)
+# Plotly 시각화 출력
+col1, col2 = st.columns([2, 1])  # 왼쪽은 plot, 오른쪽은 구종별 통계
+with col1:
+    st.plotly_chart(scatter_fig)
 
-# 📋 테이블
-st.subheader("Pitch Details")
-st.dataframe(filtered_df[['pitch_number', 'pitch_name', 'outs_when_up', 'balls', 'strikes',
-                          'release_speed', 'release_spin_rate', 'type', 'description']])
-# 📊 우측 공간 요약
-with st.columns(2)[1]:  # 우측 공간에 배치
-    st.header(f"📊 {pitcher_name} Summary")
+with col2:
+    # 📋 구종별 통계
+    st.subheader("Pitch Type Summary")
     summary_df = filtered_df.groupby('pitch_name').agg({
         'pitch_name': 'count',
         'release_speed': ['min', 'mean', 'max'],
@@ -209,7 +209,26 @@ with st.columns(2)[1]:  # 우측 공간에 배치
 
     # column 이름 정리
     summary_df.columns = ['_'.join(col).strip() for col in summary_df.columns.values]
-    summary_df = summary_df.rename(columns={'pitches_count': 'pitches'})
     summary_df = summary_df.reset_index()
 
     st.dataframe(summary_df)
+
+# 📋 테이블
+st.subheader("Pitch Details")
+
+# 컬럼 이름 정리
+filtered_df = filtered_df.rename(columns={
+    'pitch_number': 'Pitch Number',
+    'pitch_name': 'Pitch Type',
+    'outs_when_up': 'Outs When Up',
+    'balls': 'Balls',
+    'strikes': 'Strikes',
+    'release_speed': 'Release Speed (km/h)',
+    'release_spin_rate': 'Release Spin Rate (rpm)',
+    'type': 'Pitch Outcome',
+    'description': 'Pitch Description'
+})
+
+st.dataframe(filtered_df[['Pitch Number', 'Pitch Type', 'Outs When Up', 'Balls', 'Strikes',
+                          'Release Speed (km/h)', 'Release Spin Rate (rpm)', 'Pitch Outcome', 'Pitch Description']])
+
