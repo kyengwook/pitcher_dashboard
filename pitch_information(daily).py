@@ -140,7 +140,10 @@ summary_df = filtered_df.groupby('pitch_name').agg({
     'pfx_z': ['mean'],
     'pfx_x': ['mean'],
     'spin_axis': ['mean']
-}).rename(columns={'pitch_name': 'Pitch Type'}).round(1)  # 소수점 첫째 자리까지 반올림
+}).round(1)
+
+# 인덱스 이름 변경 (중요!)
+summary_df.index.name = 'Pitch Type'
 
 # 📏 단위 변환 (인치 -> 센티미터) 후 소수점 첫째 자리까지 반올림
 summary_df['release_speed'] = (summary_df['release_speed'] * 1.60934).round(1)
@@ -165,9 +168,9 @@ summary_df.columns = [
     'Spin Axis(°)'
 ]
 
-# 테이블 출력
-summary_df = summary_df.reset_index()
-st.dataframe(summary_df, hide_index=True, use_container_width=True)
+# 인덱스는 그대로 유지하고 테이블 출력
+st.dataframe(summary_df, use_container_width=True)
+
 
 st.subheader("Matchups")
 batter_options = statcast_df['batter_name'].dropna().unique()
