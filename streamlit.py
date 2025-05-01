@@ -113,12 +113,6 @@ st.header(f"{pitcher_name} - Pitch Information ({selected_date})")
 
 # 📊 구종별 통계
 st.subheader("Pitch Type Summary")
-# 📏 단위 변환 (인치 -> 센티미터)
-summary_df['pfx_x'] = summary_df['pfx_x'] * 30.48 * -1
-summary_df['pfx_z'] = summary_df['pfx_z'] * 30.48
-summary_df['release_pos_z']= summary_df['release_pos_z']*30.48
-summary_df['release_pos_x']= summary_df['release_pos_x']*30.48*(-1)
-summary_df['release_extension']= summary_df['release_extension']*30.48
 summary_df = filtered_df.groupby('pitch_name').agg({
     'pitch_name': 'count',
     'release_speed': ['min', 'mean', 'max'],
@@ -129,8 +123,14 @@ summary_df = filtered_df.groupby('pitch_name').agg({
     'pfx_z': ['mean'],
     'pfx_x': ['mean'],
     'spin_axis': ['mean']
-}).rename(columns={'pitch_name': 'pitches'}).round(1)
+}).rename(columns={'pitch_name': 'pitches'}).round(1)  # 소수점 첫째 자리까지 반올림
 
+# 📏 단위 변환 (인치 -> 센티미터)
+summary_df['pfx_x'] = summary_df['pfx_x'] * 30.48 * -1
+summary_df['pfx_z'] = summary_df['pfx_z'] * 30.48
+summary_df['release_pos_z'] = summary_df['release_pos_z'] * 30.48
+summary_df['release_pos_x'] = summary_df['release_pos_x'] * 30.48 * (-1)
+summary_df['release_extension'] = summary_df['release_extension'] * 30.48
 
 # column 이름 정리
 summary_df.columns = ['_'.join(col).strip() for col in summary_df.columns.values]
@@ -238,5 +238,3 @@ with col2:
 
     st.dataframe(filtered_df[['Pitch Number', 'Pitch Type', 'Outs When Up', 'Balls', 'Strikes',
                               'Release Speed (km/h)', 'Release Spin Rate (rpm)', 'Pitch Outcome', 'Pitch Description']])
-
-
