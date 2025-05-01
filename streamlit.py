@@ -34,7 +34,7 @@ if df.empty:
     st.error("❌ 데이터셋이 비어있습니다. Google Drive 파일 ID나 파일 내용을 확인하세요.")
     st.stop()
 
-st.title("⚾ Daily Pitch Information")
+st.title("⚾ Pitcher Visualization Dashboard")
 
 # 🎌 1️⃣ 팀 선택
 teams = sorted(df['home_team'].unique())
@@ -176,6 +176,7 @@ st.plotly_chart(scatter_fig)
 st.subheader("Pitch Details")
 st.dataframe(filtered_df[['pitch_number', 'pitch_name', 'outs_when_up', 'balls', 'strikes',
                           'release_speed', 'release_spin_rate', 'type', 'description']])
+
 
 
 
