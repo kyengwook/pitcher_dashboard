@@ -124,12 +124,12 @@ summary_df = filtered_df.groupby('pitch_name').agg({
     'pitch_name': 'count',
     'release_speed': ['min', 'mean', 'max'],
     'release_spin_rate': 'mean',
+    'pfx_z': 'mean',
+    'pfx_x': 'mean',
+    'spin_axis': 'mean',
     'release_pos_z': 'mean',
     'release_pos_x': 'mean',
     'release_extension': 'mean',
-    'pfx_z': 'mean',
-    'pfx_x': 'mean',
-    'spin_axis': 'mean'
 }).round(1)
 
 #단위 변환 (인치 -> 센티미터), 소수점 첫째 자리까지 반올림
@@ -143,7 +143,8 @@ summary_df['release_extension'] = (summary_df['release_extension'] * 30.48).roun
 summary_df.index.name = 'Pitch Type'
 summary_df.columns = [
     'Pitches', 'Velo Min(km/h)', 'Velo Avg(km/h)', 'Velo Max(km/h)', 'Spin(rpm)',
-    'RelZ(cm)', 'RelX(cm)', 'Ext(cm)', 'VB(cm)', 'HB(cm)', 'Axis(°)'
+     'VB(cm)', 'HB(cm)', 'Axis(°)'
+    'RelZ(cm)', 'RelX(cm)', 'Ext(cm)'
 ]
 
 ## 단위 변환
