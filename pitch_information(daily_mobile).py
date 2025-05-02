@@ -34,7 +34,7 @@ if df.empty:
     st.stop()
 
 st.title("⚾ MLB 2025 - Daily Pitch Info")
-st.caption("🧑🏻‍💻 Kyengwook | 📬 kyengwook8@naver.com | [GitHub](https://github.com/kyengwook/kyengwook) | [Instagram](https://instagram.com/kyengwook)")
+st.caption("🧑🏻‍💻 Kyengwook | 📬 kyengwook8@naver.com | [GitHub](https://github.com/kyengwook/kyengwook) | [Instagram](https://instagram.com/kyengwook/kyengwook)")
 st.caption("📊 Data: [Baseball Savant](https://baseballsavant.mlb.com/) – MLB 2025 Regular Season")
 
 # Division 선택
@@ -114,13 +114,16 @@ statcast_df = pd.merge(statcast_df, batter_ID, on='batter', how='left')
 
 pitcher_name = statcast_df['player_name'].iloc[0]
 
-# ---- UI 구분선 ----
 st.header(f"{pitcher_name} - {selected_date}")
 
-# 구종별 요약 테이블
+# ---- Pitch Summary ----
+
 st.subheader("Pitch Summary")
 
-summary_df = filtered_df.groupby('pitch_name').agg({
+# pitch_name 없는 row 제거
+filtered_df_nonan = filtered_df.dropna(subset=['pitch_name'])
+
+summary_df = filtered_df_nonan.groupby('pitch_name').agg({
     'pitch_name': 'count',
     'release_speed': ['min', 'mean', 'max'],
     'release_spin_rate': 'mean',
@@ -138,7 +141,6 @@ summary_df.columns = [
     'RelZ(cm)', 'RelX(cm)', 'Ext(cm)', 'VB(cm)', 'HB(cm)', 'Axis(°)'
 ]
 
-# 단위 변환
 for col in ['RelZ(cm)', 'RelX(cm)', 'Ext(cm)', 'VB(cm)', 'HB(cm)']:
     if 'X' in col or 'HB' in col:
         summary_df[col] = (summary_df[col] * 30.48 * -1).round(1)
@@ -149,6 +151,7 @@ summary_df = summary_df.sort_values('Pitches', ascending=False)
 st.dataframe(summary_df, use_container_width=True, height=300)
 
 # ---- Matchups ----
+
 st.subheader("Matchups")
 
 batter_options = statcast_df['batter_name'].dropna().unique()
@@ -161,24 +164,19 @@ selected_inning = st.selectbox('Inning', inning_options, label_visibility='colla
 filtered_df = filtered_df[(filtered_df['inning'] == selected_inning)].sort_values('pitch_number')
 filtered_df = filtered_df.drop_duplicates(subset=['pitch_number', 'inning', 'batter'])
 
-# ---- Plotly 시각화 ----
+# ---- Plotly Visualization ----
+
 L, R = -0.708333, 0.708333
 Bot, Top = 1.5, 3.5
 
 scatter_fig = go.Figure()
 pitch_styles = {
-    '4-Seam Fastball': {'color': '#D22D49'},
-    'Sinker': {'color': '#FE9D00'},
-    'Cutter': {'color': '#933F2C'},
-    'Knuckle Curve': {'color': 'mediumpurple'},
-    'Sweeper': {'color': 'olive'},
-    'Split-Finger': {'color': '#888888'},
-    'Changeup': {'color': '#1DBE3A'},
-    'Screwball': {'color': '#1DBE3A'},
-    'Forkball': {'color': '#888888'},
-    'Slurve': {'color': 'teal'},
-    'Knuckleball': {'color': 'lightsteelblue'},
-    'Slider': {'color': 'darkkhaki'},
+    '4-Seam Fastball': {'color': '#D22D49'}, 'Sinker': {'color': '#FE9D00'},
+    'Cutter': {'color': '#933F2C'}, 'Knuckle Curve': {'color': 'mediumpurple'},
+    'Sweeper': {'color': 'olive'}, 'Split-Finger': {'color': '#888888'},
+    'Changeup': {'color': '#1DBE3A'}, 'Screwball': {'color': '#1DBE3A'},
+    'Forkball': {'color': '#888888'}, 'Slurve': {'color': 'teal'},
+    'Knuckleball': {'color': 'lightsteelblue'}, 'Slider': {'color': 'darkkhaki'},
     'Curveball': {'color': 'teal'},
 }
 
@@ -190,35 +188,29 @@ for pitch_name, style in pitch_styles.items():
     pitch_data['custom_hover'] = pitch_data.apply(
         lambda row: f"{row['pitch_name']}<br>{row['release_speed']} km/h<br>{row['description']}<br>{row['events']}" 
         if row['description'] == 'hit_into_play' 
-        else f"{row['pitch_name']}<br>{row['release_speed']} km/h<br>{row['description']}",
-        axis=1
-    )
-    scatter_fig.add_trace(
-        go.Scatter(
-            x=pitch_data['plate_x'], y=pitch_data['plate_z'],
-            mode='markers+text', marker=dict(size=13, color=style['color']),
-            text=pitch_data['pitch_number'], textposition='top center',
-            hovertemplate="%{customdata}<extra></extra>", customdata=pitch_data['custom_hover'], name=pitch_name
-        )
-    )
+        else f"{row['pitch_name']}<br>{row['release_speed']} km/h<br>{row['description']}", axis=1)
+    scatter_fig.add_trace(go.Scatter(
+        x=pitch_data['plate_x'], y=pitch_data['plate_z'],
+        mode='markers+text', marker=dict(size=13, color=style['color']),
+        text=pitch_data['pitch_number'], textposition='top center',
+        hovertemplate="%{customdata}<extra></extra>", customdata=pitch_data['custom_hover'],
+        name=pitch_name
+    ))
 
-# 스트라이크존 추가
 scatter_fig.add_shape(type='rect', x0=L, x1=R, y0=Bot, y1=Top, line=dict(color='black', width=2))
-scatter_fig.add_shape(type='path', 
-    path=f'M {R-0.1},{0} L {L+0.1},{0} L {L-0.1},{-0.6} L 0,{-1.0} L {R+0.1},{-0.6} Z',
-    line=dict(color='grey', width=1))
+scatter_fig.add_shape(type='path', path=f'M {R-0.1},{0} L {L+0.1},{0} L {L-0.1},{-0.6} L 0,{-1.0} L {R+0.1},{-0.6} Z', line=dict(color='grey', width=1))
 
 scatter_fig.update_layout(
     title=f'{pitcher_name} vs {selected_batter} (Inning {selected_inning})',
     xaxis=dict(range=[L-2.5, R+2.5], showticklabels=False),
     yaxis=dict(range=[Bot-3, Top+2], showticklabels=False),
-    width=500, height=600, showlegend=True,
-    margin=dict(l=5, r=5, t=40, b=5), autosize=True
+    width=500, height=600, showlegend=True, margin=dict(l=5, r=5, t=40, b=5), autosize=True
 )
 
 st.plotly_chart(scatter_fig, use_container_width=True)
 
 # ---- Pitch Details ----
+
 st.subheader("Pitch Details")
 
 filtered_df = filtered_df.rename(columns={
@@ -227,4 +219,6 @@ filtered_df = filtered_df.rename(columns={
     'release_spin_rate': 'Spin(rpm)', 'type': 'Result', 'description': 'Desc'
 })
 
-st.dataframe(filtered_df[['No', 'Type', 'Out', 'B', 'S', 'Velo(km/h)', 'Spin(rpm)', 'Result', 'Desc']], hide_index=True, height=300, use_container_width=True)
+filtered_df_clean = filtered_df.dropna(subset=['Type'])
+
+st.dataframe(filtered_df_clean[['No', 'Type', 'Out', 'B', 'S', 'Velo(km/h)', 'Spin(rpm)', 'Result', 'Desc']], hide_index=True, height=300, use_container_width=True)
