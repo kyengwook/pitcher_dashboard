@@ -92,14 +92,26 @@ if filtered_player_df.empty:
     st.stop()
 
 # 날짜 선택 (placeholder 포함)
-available_dates = filtered_player_df.index.normalize().unique()
-available_dates = sorted([d.date() for d in available_dates])
-date_options = ['— Select Date —'] + available_dates
-selected_date = st.selectbox('Select Date', date_options)
+# 상대팀 정보 컬럼 추가
+filtered_player_df['opponent_team'] = filtered_player_df.apply(
+    lambda row: row['away_team'] if row['home_team'] == selected_team else row['home_team'], axis=1
+)
 
-if selected_date == '— Select Date —':
+# 날짜 + 상대팀 문자열 생성 (예: 2025-04-21 ATL)
+filtered_player_df['date_str'] = filtered_player_df.index.to_series().dt.strftime('%Y-%m-%d') + ' ' + filtered_player_df['opponent_team']
+
+# 중복 제거 및 정렬
+date_options = ['— Select Date —'] + sorted(filtered_player_df['date_str'].unique())
+selected_date_str = st.selectbox('Select Date', date_options)
+
+if selected_date_str == '— Select Date —':
     st.info('ℹ️ 날짜를 선택해주세요.')
     st.stop()
+
+# 선택한 날짜와 상대팀 추출
+selected_date = pd.to_datetime(selected_date_str.split(' ')[0])
+opponent_team = selected_date_str.split(' ')[1]
+
 
 # 선택한 날짜 데이터 필터링
 filtered_df = filtered_player_df[filtered_player_df.index.normalize() == pd.Timestamp(selected_date)]
@@ -221,7 +233,7 @@ for pitch_name, style in pitch_styles.items():
         f"{row['pitch_name']}<br>"
         f"{row['release_speed']} km/h<br>"
         f"{row['description']}<br>"
-        f"{row['events']}" if row['description'] == 'hit_into_play' else
+        f"{row['events']}<br>" f"xBA {row['estimated_ba_using_speedangle']}" if row['description'] == 'hit_into_play' else
         f"{row['pitch_name']}<br>"
         f"{row['release_speed']} km/h<br>{row['description']}"
     ), axis=1
