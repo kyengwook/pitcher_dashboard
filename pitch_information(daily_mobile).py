@@ -95,7 +95,8 @@ filtered_player_df['opponent_team'] = filtered_player_df.apply(
 )
 
 # 날짜 + 상대팀 문자열 생성 (예: 2025-04-15 NYM)
-filtered_player_df['date_str'] = filtered_player_df.index.date.astype(str) + ' ' + filtered_player_df['opponent_team']
+filtered_player_df['date_str'] = filtered_player_df.index.to_series().dt.strftime('%Y-%m-%d') + ' ' + filtered_player_df['opponent_team']
+
 
 # 중복 제거 및 정렬
 date_options = ['— Select Date —'] + sorted(filtered_player_df['date_str'].unique())
