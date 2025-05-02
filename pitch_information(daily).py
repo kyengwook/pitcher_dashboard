@@ -246,6 +246,7 @@ scatter_fig.add_shape(type='path',
     path=f'M {R-0.1},{0} L {L+0.1},{0} L {L-0.1},{-0.6} L 0,{-1.0} L {R+0.1},{-0.6} Z',
     line=dict(color='grey', width=1))
 
+#width = 500 / 800 height 600 / 900
 scatter_fig.update_layout(
     title=f'{pitcher_name} - Pitch Location vs {selected_batter} (Inning {selected_inning})',
     xaxis=dict(title='', range=[L-2.5, R+2.5], showticklabels=False),
