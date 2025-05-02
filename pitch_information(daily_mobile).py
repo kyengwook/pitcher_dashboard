@@ -132,18 +132,26 @@ summary_df = filtered_df.groupby('pitch_name').agg({
     'spin_axis': 'mean'
 }).round(1)
 
+#단위 변환 (인치 -> 센티미터), 소수점 첫째 자리까지 반올림
+summary_df['release_speed'] = (summary_df['release_speed'] * 1.60934).round(1)
+summary_df['pfx_x'] = (summary_df['pfx_x'] * 30.48 * -1).round(1)
+summary_df['pfx_z'] = (summary_df['pfx_z'] * 30.48).round(1)
+summary_df['release_pos_z'] = (summary_df['release_pos_z'] * 30.48).round(1)
+summary_df['release_pos_x'] = (summary_df['release_pos_x'] * 30.48 * (-1)).round(1)
+summary_df['release_extension'] = (summary_df['release_extension'] * 30.48).round(1)
+
 summary_df.index.name = 'Pitch Type'
 summary_df.columns = [
     'Pitches', 'Velo Min(km/h)', 'Velo Avg(km/h)', 'Velo Max(km/h)', 'Spin(rpm)',
     'RelZ(cm)', 'RelX(cm)', 'Ext(cm)', 'VB(cm)', 'HB(cm)', 'Axis(°)'
 ]
 
-# 단위 변환
-for col in ['RelZ(cm)', 'RelX(cm)', 'Ext(cm)', 'VB(cm)', 'HB(cm)']:
-    if 'X' in col or 'HB' in col:
-        summary_df[col] = (summary_df[col] * 30.48 * -1).round(1)
-    else:
-        summary_df[col] = (summary_df[col] * 30.48).round(1)
+## 단위 변환
+#for col in ['RelZ(cm)', 'RelX(cm)', 'Ext(cm)', 'VB(cm)', 'HB(cm)']:
+    #if 'X' in col or 'HB' in col:
+        #summary_df[col] = (summary_df[col] * 30.48 * -1).round(1)
+    #else:
+        #summary_df[col] = (summary_df[col] * 30.48).round(1)
 
 summary_df = summary_df.sort_values('Pitches', ascending=False)
 st.dataframe(summary_df)
