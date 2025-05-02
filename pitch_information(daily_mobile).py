@@ -146,7 +146,7 @@ for col in ['RelZ(cm)', 'RelX(cm)', 'Ext(cm)', 'VB(cm)', 'HB(cm)']:
         summary_df[col] = (summary_df[col] * 30.48).round(1)
 
 summary_df = summary_df.sort_values('Pitches', ascending=False)
-st.dataframe(summary_df, use_container_width=True, height=300)
+st.dataframe(summary_df)
 
 # ---- Matchups ----
 st.subheader("Matchups")
@@ -213,7 +213,14 @@ scatter_fig.update_layout(
     xaxis=dict(range=[L-2.5, R+2.5], showticklabels=False),
     yaxis=dict(range=[Bot-3, Top+2], showticklabels=False),
     width=500, height=600, showlegend=True,
-    margin=dict(l=5, r=5, t=40, b=5), autosize=True
+    margin=dict(l=5, r=5, t=40, b=5), autosize=True,
+    legend=dict(
+        x=0.02,
+        y=0.98,
+        bgcolor='rgba(255,255,255,0.7)',
+        bordercolor='black',
+        borderwidth=1,
+    )
 )
 
 st.plotly_chart(scatter_fig, use_container_width=True)
@@ -227,4 +234,4 @@ filtered_df = filtered_df.rename(columns={
     'release_spin_rate': 'Spin(rpm)', 'type': 'Result', 'description': 'Desc'
 })
 
-st.dataframe(filtered_df[['No', 'Type', 'Out', 'B', 'S', 'Velo(km/h)', 'Spin(rpm)', 'Result', 'Desc']], hide_index=True, height=300, use_container_width=True)
+st.dataframe(filtered_df[['No', 'Type', 'Out', 'B', 'S', 'Velo(km/h)', 'Spin(rpm)', 'Result', 'Desc']], hide_index=True)
