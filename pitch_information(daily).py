@@ -250,8 +250,8 @@ scatter_fig.update_layout(
     title=f'{pitcher_name} - Pitch Location vs {selected_batter} (Inning {selected_inning})',
     xaxis=dict(title='', range=[L-2.5, R+2.5], showticklabels=False),
     yaxis=dict(title='', range=[Bot-3, Top+2], showticklabels=False),
-    width=300,
-    height=400,
+    width=500,
+    height=600,
     showlegend=True
 )
 
