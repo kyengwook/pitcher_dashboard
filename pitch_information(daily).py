@@ -45,7 +45,7 @@ divisions = {
     'NL West': ['LAD', 'SD', 'SF', 'AZ', 'COL'],
     'AL East': ['NYY', 'BOS', 'TOR', 'TB', 'BAL'],
     'AL Central': ['DET', 'KC', 'CLE', 'MIN', 'CWS'],
-    'AL West': ['TEX', 'LAA', 'HOU', 'OAK', 'SEA']
+    'AL West': ['TEX', 'LAA', 'HOU', 'ATH', 'SEA']
 }
 
 division_options = ['— Select Division —'] + list(divisions.keys())
@@ -231,7 +231,7 @@ for pitch_name, style in pitch_styles.items():
             x=pitch_data['plate_x'],
             y=pitch_data['plate_z'],
             mode='markers+text',
-            marker=dict(size=10, color=style['color']),
+            marker=dict(size=15, color=style['color']),
             text=pitch_data['pitch_number'],
             textposition='top center',
             hovertemplate="%{customdata}<extra></extra>",
@@ -250,8 +250,8 @@ scatter_fig.update_layout(
     title=f'{pitcher_name} - Pitch Location vs {selected_batter} (Inning {selected_inning})',
     xaxis=dict(title='', range=[L-2.5, R+2.5], showticklabels=False),
     yaxis=dict(title='', range=[Bot-3, Top+2], showticklabels=False),
-    width=800,
-    height=900,
+    width=300,
+    height=400,
     showlegend=True
 )
 
