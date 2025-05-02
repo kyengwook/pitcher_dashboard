@@ -210,20 +210,19 @@ scatter_fig.add_shape(type='path',
 
 scatter_fig.update_layout(
     title=f'{pitcher_name} vs {selected_batter} (Inning {selected_inning})',
-    xaxis=dict(range=[L-2.5, R+2.5], showticklabels=False),
-    yaxis=dict(range=[Bot-3, Top+2], showticklabels=False),
-    width=550, height=600, showlegend=True,
-    margin=dict(l=5, r=5, t=70, b=5),  # 상단 여백(t=60)을 늘림
-    autosize=True,
+    xaxis=dict(range=[L-2.5, R+2.5], showticklabels=False, fixedrange=True),
+    yaxis=dict(range=[Bot-3, Top+2], showticklabels=False, fixedrange=True),
+    width=500, height=600, showlegend=True,
+    margin=dict(l=5, r=5, t=80, b=5), autosize=True,
     legend=dict(
         x=0.02,
         y=0.98,
         bgcolor='rgba(255,255,255,0.7)',
         bordercolor='black',
         borderwidth=1,
-    )
+    ),
+    dragmode=False  # 이 줄을 추가하여 zoom 비활성화
 )
-
 
 st.plotly_chart(scatter_fig, use_container_width=True)
 
