@@ -89,9 +89,24 @@ if filtered_player_df.empty:
     st.stop()
 
 # 날짜 선택
-available_dates = sorted([d.date() for d in filtered_player_df.index.normalize().unique()])
-date_options = ['— Select Date —'] + available_dates
-selected_date = st.selectbox('Date', date_options, label_visibility='collapsed')
+# 상대팀 정보 추가
+filtered_player_df['opponent_team'] = filtered_player_df.apply(
+    lambda row: row['away_team'] if row['home_team'] == selected_team else row['home_team'], axis=1
+)
+
+# 날짜 + 상대팀 문자열 생성 (예: 2025-04-15 NYM)
+filtered_player_df['date_str'] = filtered_player_df.index.date.astype(str) + ' ' + filtered_player_df['opponent_team']
+
+# 중복 제거 및 정렬
+date_options = ['— Select Date —'] + sorted(filtered_player_df['date_str'].unique())
+selected_date_str = st.selectbox('Date', date_options, label_visibility='collapsed')
+
+if selected_date_str == '— Select Date —':
+    st.info('ℹ️ 날짜를 선택해주세요.')
+    st.stop()
+
+# 선택된 문자열에서 날짜만 추출
+selected_date = pd.to_datetime(selected_date_str.split(' ')[0])
 
 if selected_date == '— Select Date —':
     st.info('ℹ️ 날짜를 선택해주세요.')
