@@ -134,8 +134,8 @@ statcast_df = pd.merge(statcast_df, batter_ID, on='batter', how='left')
 #pitcher_name
 pitcher_name = statcast_df['player_name'].iloc[0]
 
-#Batter/Inning 선택
-st.header(f"{pitcher_name} - Pitch Information ({selected_date})")
+#UI 구분선
+st.header(f"{pitcher_name} - Pitch Information ({selected_date.strftime('%Y-%m-%d')} vs {opponent_team})")
 
 #구종별 통계
 st.subheader("Pitch Summary(Game)")
