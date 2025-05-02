@@ -213,7 +213,8 @@ scatter_fig.update_layout(
     xaxis=dict(range=[L-2.5, R+2.5], showticklabels=False),
     yaxis=dict(range=[Bot-3, Top+2], showticklabels=False),
     width=500, height=600, showlegend=True,
-    margin=dict(l=5, r=5, t=40, b=5), autosize=True,
+    margin=dict(l=5, r=5, t=60, b=5),  # 상단 여백(t=60)을 늘림
+    autosize=True,
     legend=dict(
         x=0.02,
         y=0.98,
@@ -223,7 +224,8 @@ scatter_fig.update_layout(
     )
 )
 
-st.plotly_chart(scatter_fig, use_container_width=True)
+
+st.plotly_chart(scatter_fig)
 
 # ---- Pitch Details ----
 st.subheader("Pitch Details")
