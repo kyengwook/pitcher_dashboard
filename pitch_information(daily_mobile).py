@@ -205,10 +205,10 @@ for pitch_name, style in pitch_styles.items():
     )
 
 # 스트라이크존 추가
-scatter_fig.add_shape(type='rect', x0=L, x1=R, y0=Bot, y1=Top, line=dict(color='black', width=2))
+scatter_fig.add_shape(type='rect', x0=L, x1=R, y0=Bot, y1=Top, line=dict(color='grey', width=1.5))
 scatter_fig.add_shape(type='path', 
     path=f'M {R-0.1},{0} L {L+0.1},{0} L {L-0.1},{-0.6} L 0,{-1.0} L {R+0.1},{-0.6} Z',
-    line=dict(color='grey', width=1))
+    line=dict(color='grey', width=1.5))
 
 scatter_fig.update_layout(
     title=f'{pitcher_name} vs {selected_batter} (Inning {selected_inning})',
