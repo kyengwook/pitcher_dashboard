@@ -225,7 +225,7 @@ scatter_fig.update_layout(
 )
 
 
-st.plotly_chart(scatter_fig)
+st.plotly_chart(scatter_fig, use_container_width=True)
 
 # ---- Pitch Details ----
 st.subheader("Pitch Details")
