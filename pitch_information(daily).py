@@ -280,7 +280,7 @@ st.subheader("Pitch Details")
 filtered_df = filtered_df.rename(columns={
     'pitch_number': 'Pitch Number',
     'pitch_name': 'Pitch Type',
-    'outs_when_up': 'Outs When Up',
+    'outs_when_up': 'Outs',
     'balls': 'Balls',
     'strikes': 'Strikes',
     'release_speed': 'Release Speed (km/h)',
