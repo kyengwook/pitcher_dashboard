@@ -180,6 +180,8 @@ pitch_styles = {
     'Knuckleball': {'color': 'lightsteelblue'},
     'Slider': {'color': 'darkkhaki'},
     'Curveball': {'color': 'teal'},
+    'Eephus': {'color': 'black'},
+    'Other': {'color': 'black'}
 }
 
 for pitch_name, style in pitch_styles.items():
