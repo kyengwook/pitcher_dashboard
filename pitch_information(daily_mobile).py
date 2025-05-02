@@ -199,7 +199,7 @@ for pitch_name, style in pitch_styles.items():
         continue
     pitch_data = pitch_data.copy()
     pitch_data['custom_hover'] = pitch_data.apply(
-        lambda row: f"{row['pitch_name']}<br>{row['release_speed']} km/h<br>{row['description']}<br>{row['events']}" 
+        lambda row: f"{row['pitch_name']}<br>{row['release_speed']} km/h<br>{row['description']}<br>{row['events']}<br>xBA {row['estimated_ba_using_speedangle']}" 
         if row['description'] == 'hit_into_play' 
         else f"{row['pitch_name']}<br>{row['release_speed']} km/h<br>{row['description']}",
         axis=1
