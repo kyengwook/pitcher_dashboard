@@ -5,7 +5,7 @@ import requests
 import io
 from pybaseball import statcast_pitcher
 
-st.set_page_config(layout="centered")
+st.set_page_config(layout="wide")
 
 #데이터 로드
 @st.cache_data
