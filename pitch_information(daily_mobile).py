@@ -15,7 +15,7 @@ def load_data_from_drive():
     response = requests.get(download_url)
     response.raise_for_status()
     df = pd.read_csv(io.StringIO(response.content.decode("utf-8")), encoding='utf-8')
-    df = df[df['game_type'] == 'R']
+    df = df[df['game_type']=='R']
     df['game_date'] = pd.to_datetime(df['game_date'])
     df = df.set_index('game_date').sort_index()
     return df
