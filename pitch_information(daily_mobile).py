@@ -10,7 +10,7 @@ st.set_page_config(layout="wide")
 # 데이터 로드 함수
 @st.cache_data
 def load_data_from_drive():
-    file_id = "1sWJCEA7MUrOCGfj61ES1JQHJGBfYVYN3"
+    file_id = "1vZB9axWHpzUB5ixNG9Q3JtxTxQsCDMD4"
     download_url = f"https://drive.google.com/uc?export=download&id={file_id}"
     response = requests.get(download_url)
     response.raise_for_status()
