@@ -27,6 +27,7 @@ def load_data_from_drive():
     df = df.set_index('game_date').sort_index()
     return df
 
+
 @st.cache_data
 def load_batter_id():
     batter_ID = pd.read_excel('Batter_ID(2025).xlsx')
