@@ -14,7 +14,7 @@ st.set_page_config(layout="wide")
 # 데이터 로드 함수
 # -----------------------------
 
-import os
+#import os
 
 @st.cache_data
 def load_data_from_drive():
