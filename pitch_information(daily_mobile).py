@@ -162,7 +162,7 @@ summary_df['release_extension'] = (summary_df['release_extension'] * 30.48).roun
 summary_df.index.name = 'Pitch Type'
 summary_df.columns = [
     'Pitches', 'Velo Min(km/h)', 'Velo Avg(km/h)', 'Velo Max(km/h)', 'Spin(rpm)',
-     'VB(cm)', 'HB(cm)', 'Axis(°)',
+     'IVB(cm)', 'HB(cm)', 'Axis(°)',
     'RelZ(cm)', 'RelX(cm)', 'Ext(cm)'
 ]
 
