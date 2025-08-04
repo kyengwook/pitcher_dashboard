@@ -1,4 +1,4 @@
-streamlit==1.47.1
+streamlit >= 1.47.1
 pandas==2.2.2
 plotly==5.20.0
 pybaseball==2.2.7
