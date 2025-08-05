@@ -1,6 +1,0 @@
-streamlit >= 1.47.1
-pandas==2.2.2
-plotly
-pybaseball==2.2.7
-openpyxl==3.1.2
-gdown
