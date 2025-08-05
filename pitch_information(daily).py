@@ -1,9 +1,9 @@
-import pandas as pd
-import plotly.graph_objects as go
 import streamlit as st
 import requests
 import io
 from pybaseball import statcast_pitcher
+import pandas as pd
+import plotly.graph_objects as go
 
 st.set_page_config(layout="wide")
 
